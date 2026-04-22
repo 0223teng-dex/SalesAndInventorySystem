@@ -1,4 +1,76 @@
 from tkinter import *
+from tkinter import ttk
+
+#functionality for employee button
+
+def employee_form():
+    global back_image
+    employee_frame = Frame(window, width=1070, height=567)
+    employee_frame.place(x=200, y=100)
+    heading_Label = Label(employee_frame, text='Manage Employee Details', font=('times new roman', 16, 'bold'),bg='#3EB489',fg='black')
+    heading_Label.place(x=0, y=0, relwidth=1)
+    back_image=PhotoImage(file='backbutton.png')
+    back_button=Button(employee_frame, image=back_image, bd=0, cursor='hand2',bg='white',command=lambda: employee_frame.place_forget())
+    back_button.place(x=10,y=30)
+
+    top_Frame=Frame(employee_frame,bg='white')
+    top_Frame.place(x=0,y=65,relwidth=1,height=235)
+    search_frame=Frame(top_Frame,bg='white')
+    search_frame.pack()
+    search_combobox=ttk.Combobox(search_frame,values=('Id','Name','Email'),font=('times new roman',12),state='readonly')
+    search_combobox.set('Search By:')
+    search_combobox.grid(row=0,column=0,padx=20)
+    search_entry=Entry(search_frame,font=('times new roman',12),bg='light goldenrod yellow')
+    search_entry.grid(row=0,column=1)
+    search_button=Button(search_frame,text='Search',font=('times new roman',12),width=10,cursor='hand2',fg='white',bg='#3EB489')
+    search_button.grid(row=0,column=2,padx=20)
+    show_button = Button(search_frame, text='Show all', font=('times new roman', 12),width=10,cursor='hand2',fg='white',bg='#3EB489')
+    show_button.grid(row=0, column=3,padx=20)
+
+
+    horizontal_scrollbar=Scrollbar(top_Frame,orient=HORIZONTAL)
+    vertical_scrollbar=Scrollbar(top_Frame,orient=VERTICAL)
+    employee_treeview=ttk.Treeview(top_Frame, columns=('empid', 'name', 'email','gender','dob','contact','employment_type','education','work_shift','address','doj','salary','usertype'),show='headings', yscrollcommand=vertical_scrollbar.set,xscrollcommand=horizontal_scrollbar.set)
+    horizontal_scrollbar.pack(side=BOTTOM,fill=X)
+    vertical_scrollbar.pack(side=RIGHT,fill=Y,pady=(10,0))
+    horizontal_scrollbar.config(command=employee_treeview.xview)
+    vertical_scrollbar.config(command=employee_treeview.yview)
+    employee_treeview.pack(pady=(10,0))
+
+    detail_frame=Frame(employee_frame)
+    detail_frame.place(x=0,y=300)
+
+    
+
+#employee table
+    employee_treeview.heading('empid',text='EmpID')
+    employee_treeview.heading('name',text= 'Name')
+    employee_treeview.heading('email', text='Email')
+    employee_treeview.heading('gender', text='Gender')
+    employee_treeview.heading('dob', text='Date of Birth')
+    employee_treeview.heading('contact', text='Contact')
+    employee_treeview.heading('employment_type', text='Employment Type')
+    employee_treeview.heading('education', text='Education')
+    employee_treeview.heading('work_shift', text='Work Shift')
+    employee_treeview.heading('address', text='Address')
+    employee_treeview.heading('doj', text='Date of Joining')
+    employee_treeview.heading('salary', text='Salary')
+    employee_treeview.heading('usertype', text='User Type')
+
+    employee_treeview.column('empid',width=60)
+    employee_treeview.column('name', width=140)
+    employee_treeview.column('email', width=180)
+    employee_treeview.column('gender', width=80)
+    employee_treeview.column('contact', width=100)
+    employee_treeview.column('dob', width=100)
+    employee_treeview.column('employment_type', width=120)
+    employee_treeview.column('employment_type', width=120)
+    employee_treeview.column('education', width=120)
+    employee_treeview.column('work_shift', width=100)
+    employee_treeview.column('address', width=100)
+    employee_treeview.column('doj', width=100)
+    employee_treeview.column('salary', width=140)
+    employee_treeview.column('usertype', width=120)
 
 window=Tk()
 
