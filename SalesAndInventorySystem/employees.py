@@ -10,12 +10,78 @@ def connect_database():
         cursor=connection.cursor()
     except:
         messagebox.showerror('Error','Database connectivity issue. Try again. Please open mysql command line client.')
-        return
+        return None, None
+    return cursor, connection
+
+def create_database_table:
+    cursor,connection=connect_database()
     cursor.execute('CREATE DATABASE IF NOT EXISTS inventory_system')
     cursor.execute('USE inventory_system')
-    cursor.execute('CREATE TABLE IF NOT EXISTS employee_data (empID INT PRIMARY KEY,name VARCHAR(100), ''email VARCHAR(100), gender VARCHAR(50), dob VARCHAR(30), contact VARCHAR(30), employment_type VARCHAR(50),''work_shift VARCHAR (50), address VARCHAR(100), doj VARCHAR(30), salary VARCHAR(50), usertype VARCHAR (50),''password VARCHAR(50))')
+    cursor.execute('CREATE TABLE IF NOT EXISTS employee_data (empID INT PRIMARY KEY,name VARCHAR(100), '
+                   'email VARCHAR(100), gender VARCHAR(50), dob VARCHAR(30), contact VARCHAR(30), employment_type VARCHAR(50),'
+                   'work_shift VARCHAR (50), address VARCHAR(100), doj VARCHAR(30), salary VARCHAR(50), usertype VARCHAR (50),'
+                   'password VARCHAR(50))')
 
-connect_database()
+def treeview_data():
+    cursor, connection = connect_database()
+    if not cursor or not connection:
+        return
+    cursor.execute('use inventory_system')
+    try:
+        cursor.execute('SELECT * FROM employee_data')
+        employee_records=cursor.fetchall()
+        employee_treeview.delete(*employee_treeview.get_children())
+        for record in employee_records:
+            employee_treeview.insert('',END,values=record)
+    except Exception as e:
+        messagebox.showerror('Error','Something went wrong.')
+    finally:
+        cursor.close()
+        connection.close()
+
+
+def add_employee(empID,name,email,gender,dob,contact,employment_type,education,work_shift,address,doj,salary,usertype,password):
+    if (
+            empID == '' or name =='' or email == '' or gender == 'Select Gender' or contact == '' or
+            employment_type == 'Select type' or education == 'Select Education' or work_shift == 'Select Shift' or
+            address == '\n' or salary == '' or usertype == 'Select User Type' or password == '' ):
+        messagebox.showerror('Error','All fields are required.')
+    else:
+        cursor,connection=connect_database()
+        if not cursor or not connection:
+            return
+        cursor.execute('use inventory_system')
+        try:
+            cursor
+            cursor.execute('INSERT INTO employee_data VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',(empID,name,email,gender,dob,contact,employment_type,education,work_shift,address,doj,salary,usertype,password))
+            connection.commit()
+            treeview_data()
+            messagebox.showinfo('Success','Employee added successfully.')
+        except Exception as e:
+            messagebox.showerror('Error', 'Something went wrong.')
+        finally:
+            cursor.close()
+            connection.close()
+
+
+def clear_fields(empID_entry,name_entry,email_entry,gender_combobox,
+                 contact_entry,employment_combobox,education_combobox,work_shift_combobox,
+                 address_text,doj_date_entry,salary_entry,usertype_combobox,password_entry):
+    empID_entry.delete(0,END)
+    name_entry.delete(0,END)
+    email_entry.delete(0,END)
+    from datetime import date
+    dob_date_entry.set_date(date.today())
+    gender_combobox.set('Select Gender')
+    contact_entry.delete(0,END)
+    employment_combobox.set('Select Type')
+    education_combobox.set('Select Education')
+    work_shift_combobox.set('Select Work Shift')
+    address_text.delete(1.0,END)
+    doj_date_entry.set_date(date.today())
+    salary_entry.delete(0,END)
+    usertype_combobox.set('Select User Type')
+    password_entry.delete(0,END)
 
 def employee_form(window):
     global back_image
@@ -54,7 +120,7 @@ def employee_form(window):
     employee_treeview.pack(pady=(10,0))
 
 #employee table setting
-    employee_treeview.heading('empid',text='EmpID')
+    employee_treeview.heading('empID',text='EmpID')
     employee_treeview.heading('name',text= 'Name')
     employee_treeview.heading('email', text='Email')
     employee_treeview.heading('gender', text='Gender')
@@ -68,7 +134,7 @@ def employee_form(window):
     employee_treeview.heading('salary', text='Salary')
     employee_treeview.heading('usertype', text='User Type')
 
-    employee_treeview.column('empid',width=60)
+    employee_treeview.column('empID',width=60)
     employee_treeview.column('name', width=140)
     employee_treeview.column('email', width=180)
     employee_treeview.column('gender', width=80)
@@ -86,6 +152,7 @@ def employee_form(window):
     detail_frame = Frame(employee_frame,bg='white')
     detail_frame.place(x=0, y=310,relwidth=1,height=380)
 
+    treeview_data()
 
     empID_label = Label(detail_frame, text='EmpId', font=('times new roman', 12),bg='white')
     empID_label.grid(row=0, column=0, padx=20, pady=10, sticky='w')
@@ -103,7 +170,7 @@ def employee_form(window):
     employment_label.grid(row=2, column=0, padx=20, pady=10, sticky='w')
     employment_combobox = ttk.Combobox(detail_frame, values=('Full Time', 'Part Time', 'Casual', 'Contract', 'Intern'),
                                        font=('times new roman', 12), width=20, state='readonly')
-    employment_combobox.set('Select Type')
+    employment_combobox.set('Select Employment Type')
     employment_combobox.grid(row=2, column=1, padx=20, pady=10)
 
     address_label = Label(detail_frame, text='Address', font=('times new roman', 12),bg='white')
@@ -175,7 +242,7 @@ def employee_form(window):
 
     add_button = Button(button_frame, text='Add', font=('times new roman', 12), width=10,cursor='hand2', fg='white',
                            bg='#3EB489')
-    add_button.grid(row=0, column=0, padx=20)
+    add_button.grid(row=0, column=0, padx=20,command=lambda : add_employee(empID_entry.get(),name_entry.get(),email_entry.get(),gender_combobox.get(),contact_entry.get(),employment_combobox.get(),education_combobox.get(),work_shift_combobox.get(),address_text.get(1.0,END),doj_date_entry.get(),salary_entry.get(),usertype_combobox.get(),password_entry.get()))
 
     update_button = Button(button_frame, text='Update', font=('times new roman', 12), width=10, cursor='hand2', fg='white',
                         bg='#3EB489')
@@ -187,5 +254,8 @@ def employee_form(window):
 
     clear_button = Button(button_frame, text='Clear', font=('times new roman', 12), width=10, cursor='hand2',
                            fg='white',
-                           bg='#3EB489')
+                           bg='#3EB489',command=lambda: clear_fields(empID_entry,name_entry,email_entry,gender_combobox,contact_entry,employment_combobox,education_combobox,
+                                                                     work_shift_combobox,address_text,doj_date_entry,salary_entry,
+                                                                     usertype_combobox,password_entry))
     clear_button.grid(row=0, column=3, padx=20)
+    creatae_database_table()
